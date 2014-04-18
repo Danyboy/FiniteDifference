@@ -1,5 +1,6 @@
 import javax.swing.*;
 import java.awt.*;
+import java.awt.image.MemoryImageSource;
 
 /**
  * Created by danil on 16.04.14.
@@ -10,13 +11,18 @@ public class ArrayViewImpl extends JFrame {
 
     public ArrayViewImpl(double[][] array){
         Canvas canvas = new ImageRender(array);
-        canvas.setPreferredSize(new Dimension(size, size));
-        canvas.setSize(size, size);
+        int X = array.length;
+        int Y = array[0].length;
+
+//        canvas.createImage(new MemoryImageSource(Y, X, new ImageRender(array).getPix(), 0, X));
+
+        setSize(size, size);
         setLocation(140, 60);
         add(canvas, BorderLayout.CENTER);
         //    add(myBottonJPanel, BorderLayout.PAGE_END);
 //        pack();
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setVisible(false);
         setVisible(true);
     }
 }

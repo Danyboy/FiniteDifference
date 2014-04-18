@@ -19,7 +19,7 @@ public class FiniteDifference {
 
     private double[][] heat; //распределение тепла со временем
     private double[][] heatCofficient; //распределение тепла от источника, постоянное
-    double radius = 2;
+    double radius = 5;
 
     public LinkedList<HeatSource> heatSources;
 
@@ -84,8 +84,9 @@ public class FiniteDifference {
     }
 
     private double calculateHeatCofficient(double x, double y) {
+        double defaultHeat = 0;
         if (heatSources.isEmpty()) {
-            return 1; //default heat
+            return defaultHeat; //default heat
         }
         double min = radius;
 //        double min = 0;
@@ -95,8 +96,7 @@ public class FiniteDifference {
                 min = current;
             }
         }
-        return (radius - min);
-//        return 1 + (radius - min);
+        return defaultHeat + (radius - min);
 //                1 + p0 * (1 - min/l);
     }
 

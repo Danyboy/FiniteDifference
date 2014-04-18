@@ -4,24 +4,27 @@ import java.awt.image.MemoryImageSource;
 /**
  * Created by danil on 16.04.14.
  */
-public class ImageRender extends Canvas{
+public class ImageRender extends Canvas {
     private int[] pix;
     private int X, Y;
     private Image img;
 
     public ImageRender(double[][] array){
         double max = max(array);
+        X = array.length;
+        Y = array[0].length;
         int a = 0;
         pix = new int [array.length * array[0].length];
         for (int i = 0; i < array.length; i++) {
             for (int j = 0; j < array[0].length; j++) {
                         double ds = 255 * Math.abs(array[j][i]/ max);
-                        int green = ((int)ds) & 0xff;
-                pix[a++] = (255 << 24)|(green << 8);
+                        int red = ((int)ds) & 0xff;
+                pix[a++] = (255 << 24)|(red << 16);
             }
         }
+        int size = 640;
         img = createImage(new MemoryImageSource(Y, X, pix, 0, X));
-//        img = img.getScaledInstance(newX, newY, 1);
+        img = img.getScaledInstance(size, size, 1);
     }
 
     private static double max(double[][] array){
@@ -34,6 +37,10 @@ public class ImageRender extends Canvas{
             }
         }
         return max;
+    }
+
+    public int[] getPix() {
+        return pix;
     }
 
 
