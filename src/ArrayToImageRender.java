@@ -18,8 +18,8 @@ public class ArrayToImageRender extends Canvas {
         for (int i = 0; i < array.length; i++) {
             for (int j = 0; j < array[0].length; j++) {
                 double ds = 255 * Math.abs(array[j][i]/ max);
-                int green = ((int)ds) & 0xff; //some magic, get the last 8 bits.
-                pix[a++] = (255 << 24)|(green << 16);
+                int red = ((int)ds) & 0xff; //some magic, get the last 8 bits.
+                pix[a++] = (255 << 24)|(red << 16);
             }
         }
         int size = 640;

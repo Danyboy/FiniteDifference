@@ -19,12 +19,11 @@ public class FiniteDifference {
 
     private double[][] heat; //распределение тепла со временем
     private double[][] heatCofficient; //распределение тепла от источника, постоянное
-    double radius = 5;
+    int radius = 10;
 
     public LinkedList<HeatSource> heatSources;
 
     private double initialHeat; //start heat
-    private double initialHeatSource; //start heat source, temperature
 
     public FiniteDifference(int x, int y) {
         X = x;
@@ -32,13 +31,16 @@ public class FiniteDifference {
         heat = new double[X][Y];
         heatCofficient = new double[X][Y];
         initialHeat = 1;
-        initialHeatSource = 1;
         heatSources = new LinkedList<HeatSource>();
     }
 
     void calculate(){
-//        addHeatSource(getRandom(), getRandom());
-        addHeatSource(1, 1);
+//        addHeatSource();
+        addHeatSource(radius, radius);
+        addHeatSource(X - radius, radius);
+        addHeatSource(X - radius, Y - radius);
+        addHeatSource(radius, Y - radius);
+
         calculateHeatCofficient();
         setInitialHeat();
 
@@ -71,7 +73,11 @@ public class FiniteDifference {
     }
 
     private void addHeatSource(int x, int y){
-        heatSources.add(new HeatSource());
+        heatSources.add(new HeatSource(this, x, y));
+    }
+
+    private void addHeatSource(){
+        heatSources.add(new HeatSource(this));
     }
 
     private void calculateHeatCofficient(){
@@ -152,7 +158,7 @@ public class FiniteDifference {
         }
     }
 
-    private int getRandom() {
+    public int getRandom() {
         return (X < Y ? getRandom(0, X) : getRandom(0, Y));
     }
 
@@ -168,21 +174,4 @@ public class FiniteDifference {
         return Math.sqrt((hs.y - y) * (hs.y - y) + (hs.x - x) * (hs.x - x));
     }
 
-    class HeatSource{
-        int x;
-        int y;
-        double energy;
-
-        private HeatSource(int x, int y, int e){
-            this.x = x;
-            this.y = y;
-            this.energy = e;
-        }
-
-        private HeatSource(){
-            this.x = (int) getRandom();
-            this.y = (int) getRandom();
-            this.energy = initialHeatSource;
-        }
-    }
 }
