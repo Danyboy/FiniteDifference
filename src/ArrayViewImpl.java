@@ -1,5 +1,6 @@
 import javax.swing.*;
 import java.awt.*;
+import java.io.FileNotFoundException;
 
 /**
  * Created by danil on 16.04.14.
@@ -15,9 +16,20 @@ public class ArrayViewImpl extends JFrame {
 
 //        canvas.createImage(new MemoryImageSource(Y, X, new ArrayToImageRender(array).getPix(), 0, X));
 
+        DropRender dropRender = null;
+        try {
+            dropRender = new DropRender();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
         setSize(size, size);
         setLocation(140, 60);
         add(canvas, BorderLayout.CENTER);
+        getGlassPane().paint(dropRender.drop.createGraphics());
+
+//        setGlassPane(dropRender);
+//        getGlassPane().repaint();
+
         //    add(myBottonJPanel, BorderLayout.PAGE_END);
 //        pack();
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

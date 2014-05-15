@@ -8,8 +8,8 @@ public class FiniteDifference {
 
 //    http://en.wikipedia.org/wiki/Finite_difference_method
                                   // some change
-    private final int X;
-    private final int Y;
+    private static int X;
+    private static int Y;
 
     private Logger log = Logger.getLogger(FiniteDifference.class.getName());
 
@@ -73,11 +73,11 @@ public class FiniteDifference {
     }
 
     private void addHeatSource(int x, int y){
-        heatSources.add(new HeatSource(this, x, y));
+        heatSources.add(new HeatSource(x, y));
     }
 
     private void addHeatSource(){
-        heatSources.add(new HeatSource(this));
+        heatSources.add(new HeatSource());
     }
 
     private void calculateHeatCofficient(){
@@ -158,7 +158,7 @@ public class FiniteDifference {
         }
     }
 
-    public int getRandom() {
+    public static int getRandom() {
         return (X < Y ? getRandom(0, X) : getRandom(0, Y));
     }
 
