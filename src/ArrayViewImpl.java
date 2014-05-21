@@ -14,24 +14,14 @@ public class ArrayViewImpl extends JFrame {
         int X = array.length;
         int Y = array[0].length;
 
-//        canvas.createImage(new MemoryImageSource(Y, X, new ArrayToImageRender(array).getPix(), 0, X));
+        DropRender dropRender = new DropRender();
 
-        DropRender dropRender = null;
-        try {
-            dropRender = new DropRender();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
+
+
         setSize(size, size);
         setLocation(140, 60);
         add(canvas, BorderLayout.CENTER);
-        getGlassPane().paint(dropRender.drop.createGraphics());
 
-//        setGlassPane(dropRender);
-//        getGlassPane().repaint();
-
-        //    add(myBottonJPanel, BorderLayout.PAGE_END);
-//        pack();
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(false);
         setVisible(true);

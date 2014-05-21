@@ -19,8 +19,8 @@ class HeatSource {
     }
 
     HeatSource(){
-        this.x = (int) FiniteDifference.getRandom();
-        this.y = (int) FiniteDifference.getRandom();
+        this.x = (int) Heater.getRandom();
+        this.y = (int) Heater.getRandom();
         this.energy = 1;
     }
 }

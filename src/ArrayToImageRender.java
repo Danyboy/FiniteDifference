@@ -33,6 +33,7 @@ public class ArrayToImageRender extends Canvas {
             for (double current : doubles) {
                 if (Math.abs(current) > max) {
                     max = Math.abs(current);
+//                    System.out.println(max);
                 }
             }
         }
@@ -44,6 +45,8 @@ public class ArrayToImageRender extends Canvas {
     public void paint(Graphics g){
         if(img != null){
             g.drawImage(img, 0, 0, this);
+            g.setColor(new Color(0, 0, 250, 120));
+            g.fillOval(320,320,120,120);
         }
     }
 }
