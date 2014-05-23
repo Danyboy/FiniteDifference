@@ -8,6 +8,7 @@ public class ArrayToImageRender extends Canvas {
     private int[] pix;
     private int X, Y;
     private Image img;
+    private DropRender drop;
 
     public ArrayToImageRender(double[][] array){
         double max = max(array);
@@ -45,8 +46,13 @@ public class ArrayToImageRender extends Canvas {
     public void paint(Graphics g){
         if(img != null){
             g.drawImage(img, 0, 0, this);
-            g.setColor(new Color(0, 0, 250, 120));
-            g.fillOval(320,320,120,120);
+            drop.paint(g);
+//            g.setColor(new Color(0, 0, 250, 120));
+//            g.fillOval(320,320,120,120);
         }
+    }
+
+    public void setDrop(DropRender drop) {
+        this.drop = drop;
     }
 }

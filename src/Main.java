@@ -4,9 +4,24 @@
 public class Main {
 
     public static void main(String args[]){
-            Heater finiteDifference = new Heater(50, 50);
 
-            finiteDifference.calculate();
-            ArrayViewImpl arrayView = new ArrayViewImpl(finiteDifference.getHeat());
+        javax.swing.SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                Heater heater = new Heater(50, 50);
+                heater.calculate();
+
+                ArrayViewImpl arrayView = new ArrayViewImpl(heater.getHeat());
+
+                for (int i = 0; i < 100; i++) {
+//                    try {
+//                        Thread.sleep(1000);
+//                    } catch(InterruptedException ex) {
+//                        Thread.currentThread().interrupt();
+//                    }
+                    arrayView.nextStep();
+                }
+
+            }
+        });
     }
 }

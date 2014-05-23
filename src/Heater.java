@@ -43,8 +43,8 @@ public class Heater implements FiniteDifference {
         setInitialHeat();
 
         for (int i = 0; i < 80; i++) {
-            System.out.println();
-            System.out.println("New iteration " + i);
+//            System.out.println();
+//            System.out.println("New iteration " + i);
             nextThermalIteration();
         }
     }

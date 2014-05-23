@@ -1,29 +1,51 @@
 import javax.swing.*;
 import java.awt.*;
-import java.io.FileNotFoundException;
 
 /**
  * Created by danil on 16.04.14.
  */
 public class ArrayViewImpl extends JFrame {
 
-    int size = 640;
+    public static int size = 640;
+    public static int resizeCoefficient; //TODO add Y coef
+    private DropRender dropRender;
+    private ArrayToImageRender arrayPainter;
 
-    public ArrayViewImpl(double[][] array){
-        Canvas canvas = new ArrayToImageRender(array);
-        int X = array.length;
-        int Y = array[0].length;
+    public ArrayViewImpl(double[][] heat){
+        arrayPainter = new ArrayToImageRender(heat);
+        int X = heat.length;
+        int Y = heat[0].length;
+        resizeCoefficient = size / X;
 
-        DropRender dropRender = new DropRender();
+        int dropSize = 5;
 
-
+        dropRender = new DropRender(dropSize, heat.length / 2 - dropSize / 2, heat[1].length / 2 - dropSize / 2);
+        dropRender.drop.setHeat(heat);
+        arrayPainter.setDrop(dropRender);
 
         setSize(size, size);
         setLocation(140, 60);
-        add(canvas, BorderLayout.CENTER);
+        add(arrayPainter, BorderLayout.CENTER);
+
+//TODO cant draw component with transparent background
+//        setGlassPane(dropRender);
+//        getGlassPane().setBackground(new Color(0,0,0,0));
+//        getGlassPane().repaint();
+//        getGlassPane().setVisible(true);
+//        getGlassPane().setP
+//        add(getGlassPane());
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(false);
         setVisible(true);
     }
+
+    public void nextStep(){
+        dropRender.drop.nextStep();
+        arrayPainter.repaint();
+//        add(arrayPainter, BorderLayout.CENTER);
+//        setVisible(false);
+//        setVisible(true);
+    }
+
 }
