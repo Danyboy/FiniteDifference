@@ -11,7 +11,7 @@ public class ArrayViewImpl extends JFrame {
     private DropRender dropRender;
     private ArrayToImageRender arrayPainter;
 
-    public ArrayViewImpl(double[][] heat){
+    public ArrayViewImpl(double[][] heat) {
         arrayPainter = new ArrayToImageRender(heat);
         int X = heat.length;
         int Y = heat[0].length;
@@ -19,7 +19,7 @@ public class ArrayViewImpl extends JFrame {
 
         int dropSize = 5;
 
-        dropRender = new DropRender(dropSize, heat.length / 2 - dropSize / 2, heat[1].length / 2 - dropSize / 2);
+        dropRender = new DropRender(dropSize, heat.length / 2 - dropSize / 2 - 5, heat[1].length / 2 - dropSize / 2);
         dropRender.drop.setHeat(heat);
         arrayPainter.setDrop(dropRender);
 
@@ -27,25 +27,14 @@ public class ArrayViewImpl extends JFrame {
         setLocation(140, 60);
         add(arrayPainter, BorderLayout.CENTER);
 
-//TODO cant draw component with transparent background
-//        setGlassPane(dropRender);
-//        getGlassPane().setBackground(new Color(0,0,0,0));
-//        getGlassPane().repaint();
-//        getGlassPane().setVisible(true);
-//        getGlassPane().setP
-//        add(getGlassPane());
-
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(false);
         setVisible(true);
     }
 
-    public void nextStep(){
-        dropRender.drop.nextStep();
+    public void nextStep() {
+        dropRender.drop.nextSteps();
         arrayPainter.repaint();
-//        add(arrayPainter, BorderLayout.CENTER);
-//        setVisible(false);
-//        setVisible(true);
     }
 
 }

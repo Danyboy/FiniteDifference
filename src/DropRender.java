@@ -3,7 +3,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
@@ -12,15 +11,15 @@ import java.io.IOException;
  */
 public class DropRender extends JComponent {
     BufferedImage dropImage;
-    int newSize;
+    int resizedDrop;
     Drop drop;
 
-    public DropRender(int size, int x, int y){
+    public DropRender(int size, int x, int y) {
         drop = new Drop(size, x, y);
-        newSize = drop.getDropSize() * ArrayViewImpl.resizeCoefficient; //TODO add coefficient
+        resizedDrop = drop.getDropSize() * ArrayViewImpl.resizeCoefficient; //TODO add coefficient
     }
 
-    public DropRender(){
+    public DropRender() {
         this(2, 0, 0);
     }
 
@@ -35,12 +34,21 @@ public class DropRender extends JComponent {
 
     @Override
     public void paint(Graphics g) {
-//        g.drawOval(x, y, newSize, newSize );
-//        g.drawImage(dropImage, x, y, null);
-//        g.fillOval(320,320,120,120);
-
         g.setColor(new Color(0, 0, 250, 120));
-        g.fillOval(drop.getX() * ArrayViewImpl.resizeCoefficient, drop.getY() * ArrayViewImpl.resizeCoefficient, newSize, newSize);
+        g.fillOval(drop.getX() * ArrayViewImpl.resizeCoefficient, drop.getY() * ArrayViewImpl.resizeCoefficient, resizedDrop, resizedDrop);
+
+        boolean drawPath = true;
+        if (drawPath) {
+            int[][] path = drop.dropPath;
+            int steps = path.length;
+            int dropPosition = ArrayViewImpl.resizeCoefficient;
+            for (int i = 0; i < path.length; i++) {
+                int currentStepDropSize  = resizedDrop * (steps - i) / steps;
+                int[] step = path[i];
+                g.setColor(new Color(0, 0, 250, 120 * i / steps));
+                g.fillOval(step[0] * dropPosition, step[1] * dropPosition, currentStepDropSize, currentStepDropSize);
+            }
+        }
     }
 
 

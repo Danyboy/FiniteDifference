@@ -10,17 +10,17 @@ public class ArrayToImageRender extends Canvas {
     private Image img;
     private DropRender drop;
 
-    public ArrayToImageRender(double[][] array){
+    public ArrayToImageRender(double[][] array) {
         double max = max(array);
         X = array.length;
         Y = array[0].length;
         int a = 0;
-        pix = new int [array.length * array[0].length];
+        pix = new int[array.length * array[0].length];
         for (int i = 0; i < array.length; i++) {
             for (int j = 0; j < array[0].length; j++) {
-                double ds = 255 * Math.abs(array[j][i]/ max);
-                int red = ((int)ds) & 0xff; //some magic, get the last 8 bits.
-                pix[a++] = (255 << 24)|(red << 16);
+                double ds = 255 * Math.abs(array[j][i] / max);
+                int red = ((int) ds) & 0xff; //some magic, get the last 8 bits.
+                pix[a++] = (255 << 24) | (red << 16);
             }
         }
         int size = 640;
@@ -28,7 +28,7 @@ public class ArrayToImageRender extends Canvas {
         img = img.getScaledInstance(size, size, 1);
     }
 
-    private static double max(double[][] array){
+    private static double max(double[][] array) {
         double max = Double.MIN_VALUE;
         for (double[] doubles : array) {
             for (double current : doubles) {
@@ -43,8 +43,8 @@ public class ArrayToImageRender extends Canvas {
 
 
     @Override
-    public void paint(Graphics g){
-        if(img != null){
+    public void paint(Graphics g) {
+        if (img != null) {
             g.drawImage(img, 0, 0, this);
             drop.paint(g);
 //            g.setColor(new Color(0, 0, 250, 120));

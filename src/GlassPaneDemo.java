@@ -30,13 +30,15 @@
  */
 
 import javax.swing.*;
+import javax.swing.event.MouseInputAdapter;
 import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseEvent;
-import javax.swing.event.MouseInputAdapter;
 
-/** An application that requires no other files. */
+/**
+ * An application that requires no other files.
+ */
 public class GlassPaneDemo {
     static private MyGlassPane myGlassPane;
 

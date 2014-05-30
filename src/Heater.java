@@ -6,8 +6,8 @@ import java.util.logging.Logger;
  */
 public class Heater implements FiniteDifference {
 
-//    http://en.wikipedia.org/wiki/Finite_difference_method
-                                  // some change
+    //    http://en.wikipedia.org/wiki/Finite_difference_method
+    // some change
     private static int X;
     private static int Y;
 
@@ -24,20 +24,16 @@ public class Heater implements FiniteDifference {
     public Heater(int x, int y) {
         X = x;
         Y = y;
-        radius = X / 2;
+        radius = X / 2; //radius of heater
         heat = new double[X][Y];
         heatCofficient = new double[X][Y];
         initialHeat = 1;
         heatSources = new LinkedList<HeatSource>();
     }
 
-    public void calculate(){
-//        addHeatSource();
-//        addHeatSource(radius, radius);
-//        addHeatSource(X - radius, radius);
-//        addHeatSource(X - radius, Y - radius);
-//        addHeatSource(radius, Y - radius);
-        addHeatSource(X / 2, Y / 2);
+    public void calculate() {
+//        oneSource();
+        fourSource();
 
         calculateHeatCofficient();
         setInitialHeat();
@@ -47,6 +43,18 @@ public class Heater implements FiniteDifference {
 //            System.out.println("New iteration " + i);
             nextThermalIteration();
         }
+    }
+
+    private void fourSource(){
+        radius = X / 4;
+        addHeatSource(radius, radius);
+        addHeatSource(X - radius, radius);
+        addHeatSource(X - radius, Y - radius);
+        addHeatSource(radius, Y - radius);
+    }
+
+    private void oneSource(){
+        addHeatSource(X / 2, Y / 2);
     }
 
     private void copyBorder(double[][] oldArray, double[][] newArray) {
@@ -68,15 +76,15 @@ public class Heater implements FiniteDifference {
         }
     }
 
-    private void addHeatSource(int x, int y){
+    private void addHeatSource(int x, int y) {
         heatSources.add(new HeatSource(x, y));
     }
 
-    private void addHeatSource(){
+    private void addHeatSource() {
         heatSources.add(new HeatSource());
     }
 
-    private void calculateHeatCofficient(){
+    private void calculateHeatCofficient() {
         for (int i = 0; i < X; i++) {
             for (int j = 0; j < Y; j++) {
                 heatCofficient[i][j] = calculateHeatCofficient(i, j);
@@ -109,20 +117,20 @@ public class Heater implements FiniteDifference {
         double deltaX = 0.1; //dX
         double deltaY = 0.1; //dX
         double alpha = 0.1;  // \ / (c * r) - lambd / heat * density
-        double delta = deltaTime * alpha / ( deltaX * deltaX);
+        double delta = deltaTime * alpha / (deltaX * deltaX);
         for (int i = 1; i < X - 2; i++) {
             for (int j = 1; j < Y - 2; j++) {
                 newHeat[i][j] =
                         heat[i][j]
                                 + delta *
                                 (heat[i + 1][j] + heat[i - 1][j] +
-                                 heat[i][j + 1] + heat[i][j - 1]
-                                - 4 * heat[i][j])
+                                        heat[i][j + 1] + heat[i][j - 1]
+                                        - 4 * heat[i][j])
                                 + heatCofficient[i][j]
                 ;
                 diff += newHeat[i][j] - heat[i][j];
             }
-//            myLog("diff " + diff);
+            myLog("diff " + diff);
         }
 
         copyBorder(heat, newHeat);
@@ -131,14 +139,14 @@ public class Heater implements FiniteDifference {
         return diff;
     }
 
-    public void myLog(String s){
-        boolean logOn = true;
-        if (logOn){
+    public void myLog(String s) {
+        boolean logOn = false;
+        if (logOn) {
             System.out.println(s);
         }
 
         boolean systemLog = false;
-        if(systemLog){
+        if (systemLog) {
             log.info(s);
         }
 
@@ -149,11 +157,11 @@ public class Heater implements FiniteDifference {
     }
 
     private static int getRandom(int min, int max) {
-        return (int) getRandom( (double) min, (double) max);
+        return (int) getRandom((double) min, (double) max);
     }
 
     private static double getRandom(double min, double max) {
-      return (min + (max - min) * Math.random());
+        return (min + (max - min) * Math.random());
     }
 
     private static double distance(double x, double y, HeatSource hs) {
