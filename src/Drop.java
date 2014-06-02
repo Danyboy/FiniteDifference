@@ -2,7 +2,7 @@
 /**
  * Created by Dany on 22.05.14
  */
-public class Drop {
+public class Drop implements FiniteDifference {
     private int dropSize;
     private double[][] heat;
     private double[][] dropHeat;
@@ -34,6 +34,15 @@ public class Drop {
 
     double[][] pressure;
 
+    @Override
+    public void calculate() {
+
+        int pressureSteps = 10;
+        for (int i = 0; i < pressureSteps; i++) {
+            nextPressureIteration();
+        }
+    }
+
     private double nextPressureIteration() {
         pressure = getInitialPressure();
         double[][] newPressure = new double[X][Y];
@@ -43,14 +52,18 @@ public class Drop {
         double deltaY = 0.1; //dX
         double height = getHeightDrop();
 
-        double alpha = 0.1;  // ( m * lambda ) / ( r * p )
-        // вязкость * тепл проводность / ( уд тепл парообраз * плотность пара )
-        double delta = deltaTime * alpha / (deltaR * height * height * height * height); // TODO check deltaR
+        double alpha = 0.1; // * Math.pow(height, 4)  // ( m * lambda ) / ( r * p * h^4 )
+        // вязкость * тепл проводность / ( уд тепл парообраз * плотность пара * высота капли )
+        double delta = deltaTime / (deltaR * deltaR); // TODO check deltaR
         double t0 = 100;
 
         for (int i = 1; i < dropHeat.length; i++) {
             for (int j = 1; j < dropHeat[1].length; j++) {
-                newPressure[i][j] = pressure[i][j] - delta * dropHeat[i][j]; //dropHeat[i][j] - t0
+                newPressure[i][j] = pressure[i][j] + deltaTime * alpha * dropHeat[i][j] - delta * (
+                                    pressure[i + 1][j] + pressure[i - 1][j] +
+                                    pressure[i][j + 1] + pressure[i][j - 1]
+                                    - 4 * pressure[i][j])
+                ; //dropHeat[i][j] - t0
                 diff += newPressure[i][j] - pressure[i][j];
             }
         }
@@ -189,6 +202,7 @@ public class Drop {
     public int getY() {
         return Y;
     }
+
 }
 
 class MyPair<T> {

@@ -124,8 +124,8 @@ public class Heater implements FiniteDifference {
                         heat[i][j]
                                 + delta *
                                 (heat[i + 1][j] + heat[i - 1][j] +
-                                        heat[i][j + 1] + heat[i][j - 1]
-                                        - 4 * heat[i][j])
+                                 heat[i][j + 1] + heat[i][j - 1]
+                                 - 4 * heat[i][j])
                                 + heatCofficient[i][j]
                 ;
                 diff += newHeat[i][j] - heat[i][j];
