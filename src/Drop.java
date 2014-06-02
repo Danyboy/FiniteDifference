@@ -123,12 +123,13 @@ public class Drop implements FiniteDifference {
     }
 
     private void getDirection() {
-        int[] dir = getBorder(dropHeat);
-        X = dir[0];
-        Y = dir[1];
+        double[][] border = getBorder(dropHeat);
+
+        X = getDir(X, border[0], border[1]);
+        Y = getDir(Y, border[2], border[3]);
     }
 
-    private int[] getBorder(double[][] array) {
+    private double[][] getBorder(double[][] array) {
 
         if (dropSize < 2 || array.length < 2 || X == 0 || Y == 0 ||
                 X == heat.length - 1 || Y == heat[1].length - 1) {
@@ -153,12 +154,7 @@ public class Drop implements FiniteDifference {
             right[j] = array[dropHeatYLength - 2][j] - array[dropHeatYLength - 1][j];
         }
 
-        //TODO return 4 arrays and rewrite get dir
-
-        int upDown = getDir(X, up, down);
-        int leftRight = getDir(Y, left, right);
-
-        return new int[]{upDown, leftRight};
+        return new double[][]{up, down, left, right};
     }
 
     private int getDir(int var, double[] first, double[] second) {
