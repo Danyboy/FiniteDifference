@@ -32,10 +32,13 @@ public class DropRender extends JComponent {
         }
     }
 
+    Color blue = new Color(0, 0, 250, 120);
+    Color white = new Color(250, 250, 250, 120);
+
     @Override
     public void paint(Graphics g) {
         g.setColor(new Color(0, 0, 250, 120));
-        g.fillOval(drop.getX() * ArrayViewImpl.resizeCoefficient, drop.getY() * ArrayViewImpl.resizeCoefficient, resizedDrop, resizedDrop);
+//        g.fillOval(drop.getX() * ArrayViewImpl.resizeCoefficient, drop.getY() * ArrayViewImpl.resizeCoefficient, resizedDrop, resizedDrop);
 
         boolean drawPath = true;
         if (drawPath) {
@@ -43,7 +46,7 @@ public class DropRender extends JComponent {
             int steps = path.length;
             int dropPosition = ArrayViewImpl.resizeCoefficient;
             for (int i = 0; i < path.length; i++) {
-                int currentStepDropSize  = resizedDrop * (steps - i) / steps;
+                int currentStepDropSize = resizedDrop * (steps - i) / steps;
                 int[] step = path[i];
                 g.setColor(new Color(0, 0, 250, 120 * i / steps));
                 g.fillOval(step[0] * dropPosition, step[1] * dropPosition, currentStepDropSize, currentStepDropSize);

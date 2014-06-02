@@ -41,11 +41,12 @@ public class Drop implements FiniteDifference {
         for (int i = 0; i < pressureSteps; i++) {
             nextPressureIteration();
         }
+        getForce();
     }
 
     private double nextPressureIteration() {
         pressure = getInitialPressure();
-        double[][] newPressure = new double[X][Y];
+        double[][] newPressure = new double[pressure.length][pressure[1].length];
         double diff = 0;
         double deltaTime = 0.01; //dT
         double deltaR = 0.1; //dX
@@ -57,8 +58,8 @@ public class Drop implements FiniteDifference {
         double delta = deltaTime / (deltaR * deltaR); // TODO check deltaR
         double t0 = 100;
 
-        for (int i = 1; i < dropHeat.length; i++) {
-            for (int j = 1; j < dropHeat[1].length; j++) {
+        for (int i = 1; i < dropHeat.length - 1; i++) {
+            for (int j = 1; j < dropHeat[1].length - 1; j++) {
                 newPressure[i][j] = pressure[i][j] + deltaTime * alpha * dropHeat[i][j] - delta * (
                                     pressure[i + 1][j] + pressure[i - 1][j] +
                                     pressure[i][j + 1] + pressure[i][j - 1]
@@ -117,9 +118,28 @@ public class Drop implements FiniteDifference {
 
     public void nextStep() {
         setDropHeat(X, Y); //how many heat go to water
-        getDirection();
+//        getDirection(); //my primitive calc
+        calculate();
+        saveStep();
+    }
+
+    private void saveStep(){
         dropPath[currentStep] = new int[]{X, Y};
         ++currentStep;
+    }
+
+    private void getForce(){
+        double force; //
+        int directionX; //
+        int directionY; //
+        double[][] border = getBorder(pressure);
+
+        // h * p * V ^ 2 * n * R
+//        double p = 0.1;
+//        force = getHeightDrop() * p;
+
+        X = getDir(X, border[0], border[1]);
+        Y = getDir(Y, border[2], border[3]);
     }
 
     private void getDirection() {
@@ -177,6 +197,14 @@ public class Drop implements FiniteDifference {
         }
 
         return v / array.length;
+    }
+
+    private double getSummarize(double[] array) {
+        double result = 0;
+        for (double doubles : array) {
+            result += doubles;
+        }
+        return result;
     }
 
     public void setHeat(double[][] heat) {
