@@ -19,19 +19,6 @@ public class Drop implements FiniteDifference {
         this(3, 1, 1);
     }
 
-    void setDropHeat(int x, int y) {
-        dropHeat = new double[dropSize][dropSize];
-        for (int i = 0; i < dropSize; i++) {
-            for (int j = 0; j < dropSize; j++) {
-                if (i + x > heat.length - 1 || j + x > heat[1].length - 1) {
-                    dropHeat[i][j] = Double.MAX_VALUE; //TODO very hot border, maybe change
-                } else {
-                    dropHeat[i][j] = heat[x + i][y + j];
-                }
-            }
-        }
-    }
-
     double[][] pressure;
 
     @Override
@@ -73,6 +60,32 @@ public class Drop implements FiniteDifference {
         return diff;
     }
 
+    private void getForce(){
+        double force; //
+        int directionX; //
+        int directionY; //
+        double[][] border = getBorder(pressure);
+
+        // h * p * V ^ 2 * n * R
+//        double p = 0.1;
+//        force = getHeightDrop() * p;
+
+        X = getDir(X, border[0], border[1]);
+        Y = getDir(Y, border[2], border[3]);
+    }
+
+    void setDropHeat(int x, int y) {
+        dropHeat = new double[dropSize][dropSize];
+        for (int i = 0; i < dropSize; i++) {
+            for (int j = 0; j < dropSize; j++) {
+                if (i + x > heat.length - 1 || j + x > heat[1].length - 1) {
+                    dropHeat[i][j] = Double.MAX_VALUE; //TODO very hot border, maybe change
+                } else {
+                    dropHeat[i][j] = heat[x + i][y + j];
+                }
+            }
+        }
+    }
 
     private double[][] getInitialPressure() {
         pressure = new double[dropSize][dropSize];
@@ -126,20 +139,6 @@ public class Drop implements FiniteDifference {
     private void saveStep(){
         dropPath[currentStep] = new int[]{X, Y};
         ++currentStep;
-    }
-
-    private void getForce(){
-        double force; //
-        int directionX; //
-        int directionY; //
-        double[][] border = getBorder(pressure);
-
-        // h * p * V ^ 2 * n * R
-//        double p = 0.1;
-//        force = getHeightDrop() * p;
-
-        X = getDir(X, border[0], border[1]);
-        Y = getDir(Y, border[2], border[3]);
     }
 
     private void getDirection() {
