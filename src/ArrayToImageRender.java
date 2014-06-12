@@ -1,5 +1,7 @@
 import java.awt.*;
 import java.awt.image.MemoryImageSource;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 
 /**
  * Created by danil on 16.04.14.
@@ -9,6 +11,7 @@ public class ArrayToImageRender extends Canvas {
     private int X, Y;
     private Image img;
     private DropRender drop;
+    int newSize = ArrayViewImpl.newSize;
 
     public ArrayToImageRender(double[][] array) {
         double max = max(array);
@@ -23,9 +26,8 @@ public class ArrayToImageRender extends Canvas {
                 pix[a++] = (255 << 24) | (red << 16);
             }
         }
-        int size = 640;
         img = createImage(new MemoryImageSource(Y, X, pix, 0, X));
-        img = img.getScaledInstance(size, size, 1);
+        img = img.getScaledInstance(newSize, newSize, 1);
     }
 
     private static double max(double[][] array) {
@@ -41,11 +43,19 @@ public class ArrayToImageRender extends Canvas {
         return max;
     }
 
+    private String tempToString(){
+        NumberFormat formatter = new DecimalFormat("#0");
+        return "MaxTemp: " + formatter.format(Heater.getMaxTemp()) +
+                " MinTemp: " + formatter.format(Heater.getMinTemp());
+    }
+
 
     @Override
     public void paint(Graphics g) {
         if (img != null) {
             g.drawImage(img, 0, 0, this);
+            g.setColor(Color.white);
+            g.drawString(tempToString(), 10, 20);
             drop.paint(g);
 //            g.setColor(new Color(0, 0, 250, 120));
 //            g.fillOval(320,320,120,120);

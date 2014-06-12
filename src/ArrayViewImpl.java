@@ -6,7 +6,7 @@ import java.awt.*;
  */
 public class ArrayViewImpl extends JFrame {
 
-    public static int size = 640;
+    public static int newSize = 640;
     public static int resizeCoefficient; //TODO add Y coef
     private DropRender dropRender;
     private ArrayToImageRender arrayPainter;
@@ -15,7 +15,7 @@ public class ArrayViewImpl extends JFrame {
         arrayPainter = new ArrayToImageRender(heat);
         int X = heat.length;
         int Y = heat[0].length;
-        resizeCoefficient = size / X;
+        resizeCoefficient = newSize / X;
 
         int dropSize = 5;
 
@@ -23,7 +23,7 @@ public class ArrayViewImpl extends JFrame {
         dropRender.drop.setHeat(heat);
         arrayPainter.setDrop(dropRender);
 
-        setSize(size, size);
+        setSize(newSize, newSize);
         setLocation(140, 60);
         add(arrayPainter, BorderLayout.CENTER);
 

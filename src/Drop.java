@@ -60,6 +60,26 @@ public class Drop implements FiniteDifference {
         return diff;
     }
 
+    private double getHeightDrop() {
+        double radius = 0.001; //dropSize; //Drop newSize in m
+        double lambda = 1; //Теплопроводность
+        double boilingPoint = 100;
+        double meanDropTemperature = 100; //getMeanTemperature() - boilingPoint;
+        double viscosity = 0.001; //Вязкость
+        double density = 1; //
+        double latentHeatOfVaporization = 100000;
+        double g = 10;
+        double alpha = 1;
+        return
+                Math.pow(
+
+                9 * radius * lambda * meanDropTemperature * viscosity /
+                ( density * density * latentHeatOfVaporization * g)
+
+                , -4)
+                ;
+    }
+
     private void getForce(){
         double force; //
         int directionX; //
@@ -67,11 +87,83 @@ public class Drop implements FiniteDifference {
         double[][] border = getBorder(pressure);
 
         // h * p * V ^ 2 * n * R
-//        double p = 0.1;
-//        force = getHeightDrop() * p;
+        double p = 0.1;
+        force = getHeightDrop() * p;
+        System.out.println("Force " + force + " MeanTemp " + getMeanTemperature() + " h " + getHeightDrop());
 
         X = getDir(X, border[0], border[1]);
         Y = getDir(Y, border[2], border[3]);
+    }
+
+    private int getDir(int var, double[] first, double[] second) {
+        int border = heat.length - dropSize - 1; //TODO check
+        return getAverage(first) < getAverage(second) ? (var > 0 ? --var : 0) : (var < border ? ++var : border);
+    }
+
+    private void getDirection() {
+        double[][] border = getBorder(dropHeat);
+
+        X = getDir(X, border[0], border[1]);
+        Y = getDir(Y, border[2], border[3]);
+    }
+
+    /**
+     * Returns four border elements of array
+     *
+     * @param  array array for extract border
+     * @return       array of arrays
+     */
+    private double[][] getBorder(double[][] array) {
+
+        if (dropSize < 2 || array.length < 2 || X == 0 || Y == 0 ||
+                X == heat.length - 1 || Y == heat[1].length - 1) {
+            System.out.println("drop size must be > 2 and doesn't stay at border " + dropSize + " " + X);
+        }
+
+        int dropHeatXLength = array.length;
+        int dropHeatYLength = array[1].length;
+
+        double[] up = new double[dropHeatXLength];
+        double[] down = new double[dropHeatXLength];
+        double[] left = new double[dropHeatYLength];
+        double[] right = new double[dropHeatYLength];
+
+        for (int i = 0; i < dropHeatXLength; i++) {
+            up[i] = array[i][1] - array[i][0];
+            down[i] = array[i][dropHeatXLength - 2] - array[i][dropHeatXLength - 1];
+        }
+
+        for (int j = 0; j < dropHeatYLength; j++) {
+            left[j] = array[1][j] - array[0][j];
+            right[j] = array[dropHeatYLength - 2][j] - array[dropHeatYLength - 1][j];
+        }
+
+        return new double[][]{up, down, left, right};
+    }
+
+    private double getAverage(double[][] array) {
+        double result = 0;
+        for (double[] doubles : array) {
+            result += getAverage(doubles);
+        }
+        return result / array.length;
+    }
+
+    private double getAverage(double[] array) {
+        double v = 0;
+        for (int i = 0; i < array.length; i++) {
+            v += array[i];
+        }
+
+        return v / array.length;
+    }
+
+    private double getSummarize(double[] array) {
+        double result = 0;
+        for (double doubles : array) {
+            result += doubles;
+        }
+        return result;
     }
 
     void setDropHeat(int x, int y) {
@@ -101,25 +193,11 @@ public class Drop implements FiniteDifference {
         return pressure;
     }
 
-    private double getHeightDrop() {
-        double radius = 0.001; //dropSize; //Drop size in m
-        double lambda = 1; //Теплопроводность
-        double boilingPoint = 100;
-        double meanDropTemperature = 100; //getMeanTemperature() - boilingPoint;
-        double viscosity = 0.001; //Вязкость
-        double density = 1; //
-        double latentHeatOfVaporization = 100000;
-        double g = 10;
-        double alpha = 1;
-        return 9 * radius * lambda * meanDropTemperature * viscosity /
-                ( density * density * latentHeatOfVaporization * g);
-    }
-
     private double getMeanTemperature() {
         return getAverage(dropHeat);
     }
 
-    int steps = 50;
+    int steps = 80;
     public int [][] dropPath = new int[steps][2];
     int currentStep = 0;
 
@@ -139,71 +217,6 @@ public class Drop implements FiniteDifference {
     private void saveStep(){
         dropPath[currentStep] = new int[]{X, Y};
         ++currentStep;
-    }
-
-    private void getDirection() {
-        double[][] border = getBorder(dropHeat);
-
-        X = getDir(X, border[0], border[1]);
-        Y = getDir(Y, border[2], border[3]);
-    }
-
-    private double[][] getBorder(double[][] array) {
-
-        if (dropSize < 2 || array.length < 2 || X == 0 || Y == 0 ||
-                X == heat.length - 1 || Y == heat[1].length - 1) {
-            System.out.println("drop size must be > 2 and doesn't stay at border " + dropSize + " " + X);
-        }
-
-        int dropHeatXLength = array.length;
-        int dropHeatYLength = array[1].length;
-
-        double[] up = new double[dropHeatXLength];
-        double[] down = new double[dropHeatXLength];
-        double[] left = new double[dropHeatYLength];
-        double[] right = new double[dropHeatYLength];
-
-        for (int i = 0; i < dropHeatXLength; i++) {
-            up[i] = array[i][1] - array[i][0];
-            down[i] = array[i][dropHeatXLength - 2] - array[i][dropHeatXLength - 1];
-        }
-
-        for (int j = 0; j < dropHeatYLength; j++) {
-            left[j] = array[1][j] - array[0][j];
-            right[j] = array[dropHeatYLength - 2][j] - array[dropHeatYLength - 1][j];
-        }
-
-        return new double[][]{up, down, left, right};
-    }
-
-    private int getDir(int var, double[] first, double[] second) {
-        int border = heat.length - dropSize - 1; //TODO check
-        return getAverage(first) < getAverage(second) ? (var > 0 ? --var : 0) : (var < border ? ++var : border);
-    }
-
-    private double getAverage(double[][] array) {
-        double result = 0;
-        for (double[] doubles : array) {
-            result += getAverage(doubles);
-        }
-        return result;
-    }
-
-    private double getAverage(double[] array) {
-        double v = 0;
-        for (int i = 0; i < array.length; i++) {
-            v += array[i];
-        }
-
-        return v / array.length;
-    }
-
-    private double getSummarize(double[] array) {
-        double result = 0;
-        for (double doubles : array) {
-            result += doubles;
-        }
-        return result;
     }
 
     public void setHeat(double[][] heat) {

@@ -11,8 +11,6 @@ public class Heater implements FiniteDifference {
     private static int X;
     private static int Y;
 
-    private Logger log = Logger.getLogger(Heater.class.getName());
-
     private double[][] heat; //распределение тепла со временем
     private double[][] heatCofficient; //распределение тепла от источника, постоянное
     int radius;
@@ -24,7 +22,6 @@ public class Heater implements FiniteDifference {
     public Heater(int x, int y) {
         X = x;
         Y = y;
-        radius = X / 2; //radius of heater
         heat = new double[X][Y];
         heatCofficient = new double[X][Y];
         initialHeat = 1;
@@ -33,7 +30,8 @@ public class Heater implements FiniteDifference {
 
     public void calculate() {
 //        oneSource();
-        fourSource();
+//        fourSource();
+        fourBigSource(); //Add four big energy source
 
         calculateHeatCofficient();
         setInitialHeat();
@@ -53,7 +51,16 @@ public class Heater implements FiniteDifference {
         addHeatSource(radius, Y - radius);
     }
 
+    private void fourBigSource(){
+        radius = X;// / 4;
+        addHeatSource(radius, radius);
+        addHeatSource(X - radius, radius);
+        addHeatSource(X - radius, Y - radius);
+        addHeatSource(radius, Y - radius);
+    }
+
     private void oneSource(){
+        radius = X + 10; //radius of heater
         addHeatSource(X / 2, Y / 2);
     }
 
@@ -88,7 +95,7 @@ public class Heater implements FiniteDifference {
         for (int i = 0; i < X; i++) {
             for (int j = 0; j < Y; j++) {
                 heatCofficient[i][j] = calculateHeatCofficient(i, j);
-//                myLog("heatCofficient[i][j] " + heatCofficient[i][j]);
+//                MyLog("heatCofficient[i][j] " + heatCofficient[i][j]);
             }
         }
     }
@@ -110,6 +117,9 @@ public class Heater implements FiniteDifference {
 //                1 + p0 * (1 - min/l);
     }
 
+    static double maxTemp = 0;
+    static double minTemp = 0;
+
     private double nextThermalIteration() {
         double[][] newHeat = new double[X][Y];
         double diff = 0;
@@ -129,8 +139,13 @@ public class Heater implements FiniteDifference {
                                 + heatCofficient[i][j]
                 ;
                 diff += newHeat[i][j] - heat[i][j];
+
+                double currentTemp;
+                currentTemp = heat[i][j];
+                maxTemp = (maxTemp < currentTemp) ? currentTemp : maxTemp;
+                minTemp = (minTemp > currentTemp) ? currentTemp : minTemp;
             }
-            myLog("diff " + diff);
+//            MyLog.myLog(log, "diff " + diff);
         }
 
         copyBorder(heat, newHeat);
@@ -139,18 +154,7 @@ public class Heater implements FiniteDifference {
         return diff;
     }
 
-    public void myLog(String s) {
-        boolean logOn = false;
-        if (logOn) {
-            System.out.println(s);
-        }
-
-        boolean systemLog = false;
-        if (systemLog) {
-            log.info(s);
-        }
-
-    }
+    private Logger log = Logger.getLogger(Heater.class.getName());
 
     public static int getRandom() {
         return (X < Y ? getRandom(0, X) : getRandom(0, Y));
@@ -170,5 +174,13 @@ public class Heater implements FiniteDifference {
 
     public double[][] getHeat() {
         return heat;
+    }
+
+    public static double getMaxTemp() {
+        return maxTemp;
+    }
+
+    public static double getMinTemp() {
+        return minTemp;
     }
 }
