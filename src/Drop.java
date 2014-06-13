@@ -11,7 +11,7 @@ public class Drop implements FiniteDifference {
     double speedX;
     double speedY;
 
-    int steps = 80;
+    int steps = 20;
     public int [][] dropPath = new int[steps][2];
     private double [][] forceHistory = new double[steps][2];
     int currentStep = 0;
@@ -101,21 +101,50 @@ public class Drop implements FiniteDifference {
 
         double coefficient = speedX / speedY;
 
-        System.out.println("ForceX " + speedX + " ForceY " + speedY + " K " + coefficient);
+        System.out.println("SpeedX " + speedX + " SpeedY " + speedY + " K " + coefficient);
 
         // h * p * V ^ 2 * n * R
         double p = 0.1;
-        force = getHeightDrop() * p;
+        force = Math.pow(getHeightDrop(), 2) * p;
+
+        double forceX = force * speedX * speedX;
+        double forceY = force * speedY * speedY;
+        System.out.println("ForceX " + forceX + " ForceY " + forceY + " K " + coefficient);
+
+        forceX = normalise(forceX);
+        forceY = normalise(forceY);
+        System.out.println("ForceX " + forceX + " ForceY " + forceY + " K " + coefficient);
+
         System.out.println("Force " + force + " MeanTemp " + getMeanTemperature() + " h " + getHeightDrop());
 
-        allForceX =+ Math.abs(speedX);
-        allForceY =+ Math.abs(speedY);
+        allForceX =+ Math.abs(forceX);
+        allForceY =+ Math.abs(forceY);
 
         int stepLengthX = getStepLength(allForceX);
         int stepLengthY = getStepLength(allForceY);
 
-        X = getDir(X, border[0], border[1]);
-        Y = getDir(Y, border[2], border[3]);
+        allForceX -= stepLengthX;
+        allForceY -= stepLengthY;
+        System.out.println("StepX " + stepLengthX + " StepY " + stepLengthY);
+
+        X = checkBorder(X, getDir(border[0], border[1]) * stepLengthX);
+        Y = checkBorder(Y, getDir(border[2], border[3]) * stepLengthY);
+    }
+
+    private double normalise(double force){
+        if (force < 1){
+            while (force < 1)
+            force *= 10;
+        } else if (force > 10){
+            while (force > 10)
+            force /= 10;
+        }
+        if (1 < force && force < 10){
+            return force;
+        } else {
+            normalise(force);
+        }
+        return force;
     }
 
     private int getStepLength(double allForce){
@@ -125,23 +154,44 @@ public class Drop implements FiniteDifference {
             stepLength++;
             allForce =- stepCost;
         }
-        return stepLength;
+        return stepLength > 4 ? 4 : stepLength; //TODO remove this shit 4
     }
 
-    private void getSpeed(){
-
+    private void getSpeed(double force){
     }
 
-    private int getDir(int var, double[] first, double[] second) {
+    private int getDir(double[] first, double[] second) {
+        double myFirst = getAverage(first);
+        double mySecond = getAverage(second);
+        double d = myFirst / mySecond;
+        double myCoefficient = 0.05; //TODO remove this shit
+        if ( d < myCoefficient || d > myCoefficient * 100){
+            return 0;
+        }
+        return myFirst < mySecond ? -1 : 1;
+    }
+
+    private int checkBorder(int position, int path){
         int border = heat.length - dropSize - 1; //TODO check
-        return getAverage(first) < getAverage(second) ? (var > 0 ? --var : 0) : (var < border ? ++var : border);
+        int currentPosition = position + path;
+        if ( currentPosition > 0 && currentPosition < border){
+            return currentPosition;
+        }
+        else if (currentPosition < 0){
+            return 0;
+        }
+        else if (currentPosition > border){
+            return border;
+        }
+        return currentPosition;
+//                (var > 0 ? --var : 0) : (var < border ? ++var : border);
     }
 
     private void getDirection() {
         double[][] border = getBorder(dropHeat);
 
-        X = getDir(X, border[0], border[1]);
-        Y = getDir(Y, border[2], border[3]);
+        X = X + getDir(border[0], border[1]);
+        Y = Y + getDir(border[2], border[3]);
     }
 
     /**
