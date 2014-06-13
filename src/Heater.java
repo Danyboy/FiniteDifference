@@ -53,14 +53,14 @@ public class Heater implements FiniteDifference {
 
     private void fourBigSource(){
         radius = X;// / 4;
-        addHeatSource(radius, radius);
-        addHeatSource(X - radius, radius);
-        addHeatSource(X - radius, Y - radius);
-        addHeatSource(radius, Y - radius);
+        addHeatSource(X / 4, X / 4);
+        addHeatSource(X - X / 4, X / 4);
+        addHeatSource(X - X / 4, Y - X / 4);
+        addHeatSource(X / 4, Y - X / 4);
     }
 
     private void oneSource(){
-        radius = X + 10; //radius of heater
+        radius = X + 100; //radius of heater
         addHeatSource(X / 2, Y / 2);
     }
 

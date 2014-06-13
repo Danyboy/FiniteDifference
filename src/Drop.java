@@ -8,6 +8,13 @@ public class Drop implements FiniteDifference {
     private double[][] dropHeat;
     private int X;
     private int Y;
+    double speedX;
+    double speedY;
+
+    int steps = 80;
+    public int [][] dropPath = new int[steps][2];
+    private double [][] forceHistory = new double[steps][2];
+    int currentStep = 0;
 
     public Drop(int dropSize, int x, int y) {
         X = x;
@@ -76,9 +83,12 @@ public class Drop implements FiniteDifference {
                 9 * radius * lambda * meanDropTemperature * viscosity /
                 ( density * density * latentHeatOfVaporization * g)
 
-                , -4)
+                , 1.0 / 4)
                 ;
     }
+
+    double allForceX = 0;
+    double allForceY = 0;
 
     private void getForce(){
         double force; //
@@ -86,13 +96,40 @@ public class Drop implements FiniteDifference {
         int directionY; //
         double[][] border = getBorder(pressure);
 
+        speedX = getSummarize(border[0]) - getSummarize(border[1]);
+        speedY = getSummarize(border[2]) - getSummarize(border[3]);
+
+        double coefficient = speedX / speedY;
+
+        System.out.println("ForceX " + speedX + " ForceY " + speedY + " K " + coefficient);
+
         // h * p * V ^ 2 * n * R
         double p = 0.1;
         force = getHeightDrop() * p;
         System.out.println("Force " + force + " MeanTemp " + getMeanTemperature() + " h " + getHeightDrop());
 
+        allForceX =+ Math.abs(speedX);
+        allForceY =+ Math.abs(speedY);
+
+        int stepLengthX = getStepLength(allForceX);
+        int stepLengthY = getStepLength(allForceY);
+
         X = getDir(X, border[0], border[1]);
         Y = getDir(Y, border[2], border[3]);
+    }
+
+    private int getStepLength(double allForce){
+        int stepLength = 0;
+        double stepCost = 1;
+        while (allForce > stepCost){
+            stepLength++;
+            allForce =- stepCost;
+        }
+        return stepLength;
+    }
+
+    private void getSpeed(){
+
     }
 
     private int getDir(int var, double[] first, double[] second) {
@@ -111,7 +148,7 @@ public class Drop implements FiniteDifference {
      * Returns four border elements of array
      *
      * @param  array array for extract border
-     * @return       array of arrays
+     * @return       array of array: up, down, left, right
      */
     private double[][] getBorder(double[][] array) {
 
@@ -197,10 +234,6 @@ public class Drop implements FiniteDifference {
         return getAverage(dropHeat);
     }
 
-    int steps = 80;
-    public int [][] dropPath = new int[steps][2];
-    int currentStep = 0;
-
     public void nextSteps(){
         for (int i = 0; i < steps; i++) {
             nextStep();
@@ -216,6 +249,7 @@ public class Drop implements FiniteDifference {
 
     private void saveStep(){
         dropPath[currentStep] = new int[]{X, Y};
+        forceHistory[currentStep] = new double[]{speedX, speedY};
         ++currentStep;
     }
 
