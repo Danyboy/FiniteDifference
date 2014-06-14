@@ -11,9 +11,9 @@ public class Drop implements FiniteDifference {
     double speedX;
     double speedY;
 
-    int steps = 20;
-    public int [][] dropPath = new int[steps][2];
-    private double [][] forceHistory = new double[steps][2];
+    int steps = 25;
+    public int[][] dropPath = new int[steps][2];
+    private double[][] forceHistory = new double[steps][2];
     int currentStep = 0;
 
     public Drop(int dropSize, int x, int y) {
@@ -55,9 +55,9 @@ public class Drop implements FiniteDifference {
         for (int i = 1; i < dropHeat.length - 1; i++) {
             for (int j = 1; j < dropHeat[1].length - 1; j++) {
                 newPressure[i][j] = pressure[i][j] + deltaTime * alpha * dropHeat[i][j] - delta * (
-                                    pressure[i + 1][j] + pressure[i - 1][j] +
-                                    pressure[i][j + 1] + pressure[i][j - 1]
-                                    - 4 * pressure[i][j])
+                        pressure[i + 1][j] + pressure[i - 1][j] +
+                                pressure[i][j + 1] + pressure[i][j - 1]
+                                - 4 * pressure[i][j])
                 ; //dropHeat[i][j] - t0
                 diff += newPressure[i][j] - pressure[i][j];
             }
@@ -80,17 +80,17 @@ public class Drop implements FiniteDifference {
         return
                 Math.pow(
 
-                9 * radius * lambda * meanDropTemperature * viscosity /
-                ( density * density * latentHeatOfVaporization * g)
+                        9 * radius * lambda * meanDropTemperature * viscosity /
+                                (density * density * latentHeatOfVaporization * g)
 
-                , 1.0 / 4)
+                        , 1.0 / 4)
                 ;
     }
 
     double allForceX = 0;
     double allForceY = 0;
 
-    private void getForce(){
+    private void getForce() {
         double force; //
         int directionX; //
         int directionY; //
@@ -117,8 +117,8 @@ public class Drop implements FiniteDifference {
 
         System.out.println("Force " + force + " MeanTemp " + getMeanTemperature() + " h " + getHeightDrop());
 
-        allForceX =+ Math.abs(forceX);
-        allForceY =+ Math.abs(forceY);
+        allForceX = +Math.abs(forceX);
+        allForceY = +Math.abs(forceY);
 
         int stepLengthX = getStepLength(allForceX);
         int stepLengthY = getStepLength(allForceY);
@@ -131,15 +131,18 @@ public class Drop implements FiniteDifference {
         Y = checkBorder(Y, getDir(border[2], border[3]) * stepLengthY);
     }
 
-    private double normalise(double force){
-        if (force < 1){
-            while (force < 1)
-            force *= 10;
-        } else if (force > 10){
-            while (force > 10)
-            force /= 10;
+    private double normalise(double force) {
+        if (force == 0) {
+            return 0;
         }
-        if (1 < force && force < 10){
+        if (force < 1) {
+            while (force < 1)
+                force *= 10;
+        } else if (force > 10) {
+            while (force > 10)
+                force /= 10;
+        }
+        if (1 < force && force < 10) {
             return force;
         } else {
             normalise(force);
@@ -147,17 +150,17 @@ public class Drop implements FiniteDifference {
         return force;
     }
 
-    private int getStepLength(double allForce){
+    private int getStepLength(double allForce) {
         int stepLength = 0;
         double stepCost = 1;
-        while (allForce > stepCost){
+        while (allForce > stepCost) {
             stepLength++;
-            allForce =- stepCost;
+            allForce -= stepCost;
         }
-        return stepLength > 4 ? 4 : stepLength; //TODO remove this shit 4
+        return stepLength > 3 ? 3 : stepLength; //TODO remove this shit
     }
 
-    private void getSpeed(double force){
+    private void getSpeed(double force) {
     }
 
     private int getDir(double[] first, double[] second) {
@@ -165,23 +168,24 @@ public class Drop implements FiniteDifference {
         double mySecond = getAverage(second);
         double d = myFirst / mySecond;
         double myCoefficient = 0.05; //TODO remove this shit
-        if ( d < myCoefficient || d > myCoefficient * 100){
+        if (d < myCoefficient || d > myCoefficient * 100) {
             return 0;
         }
         return myFirst < mySecond ? -1 : 1;
     }
 
-    private int checkBorder(int position, int path){
+    private int checkBorder(int position, int path) {
         int border = heat.length - dropSize - 1; //TODO check
         int currentPosition = position + path;
-        if ( currentPosition > 0 && currentPosition < border){
-            return currentPosition;
-        }
-        else if (currentPosition < 0){
-            return 0;
-        }
-        else if (currentPosition > border){
-            return border;
+        boolean needCheck = true;
+        if (needCheck) {
+            if (currentPosition > 0 && currentPosition < border) {
+                return currentPosition;
+            } else if (currentPosition < 0) {
+                return 0;
+            } else if (currentPosition > border) {
+                return border;
+            }
         }
         return currentPosition;
 //                (var > 0 ? --var : 0) : (var < border ? ++var : border);
@@ -197,8 +201,8 @@ public class Drop implements FiniteDifference {
     /**
      * Returns four border elements of array
      *
-     * @param  array array for extract border
-     * @return       array of array: up, down, left, right
+     * @param array array for extract border
+     * @return array of array: up, down, left, right
      */
     private double[][] getBorder(double[][] array) {
 
@@ -257,10 +261,11 @@ public class Drop implements FiniteDifference {
         dropHeat = new double[dropSize][dropSize];
         for (int i = 0; i < dropSize; i++) {
             for (int j = 0; j < dropSize; j++) {
-                if (i + x > heat.length - 1 || j + x > heat[1].length - 1) {
-                    dropHeat[i][j] = Double.MAX_VALUE; //TODO very hot border, maybe change
+                if (i + x > heat.length - 1 || j + x > heat[1].length - 1 || i + x < 0 || j + x < 0) {
+                    dropHeat[i][j] = 5000; //Double.MAX_VALUE; //TODO very hot border, maybe change
                 } else {
-                    dropHeat[i][j] = heat[x + i][y + j];
+                    dropHeat[i][j] =
+                            heat[x + i][y + j];
                 }
             }
         }
@@ -284,7 +289,7 @@ public class Drop implements FiniteDifference {
         return getAverage(dropHeat);
     }
 
-    public void nextSteps(){
+    public void nextSteps() {
         for (int i = 0; i < steps; i++) {
             nextStep();
         }
@@ -297,7 +302,7 @@ public class Drop implements FiniteDifference {
         saveStep();
     }
 
-    private void saveStep(){
+    private void saveStep() {
         dropPath[currentStep] = new int[]{X, Y};
         forceHistory[currentStep] = new double[]{speedX, speedY};
         ++currentStep;

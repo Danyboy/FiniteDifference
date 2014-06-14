@@ -32,6 +32,7 @@ public class Heater implements FiniteDifference {
 //        oneSource();
 //        fourSource();
         fourBigSource(); //Add four big energy source
+//        fiveBigSource();
 
         calculateHeatCofficient();
         setInitialHeat();
@@ -57,6 +58,15 @@ public class Heater implements FiniteDifference {
         addHeatSource(X - X / 4, X / 4);
         addHeatSource(X - X / 4, Y - X / 4);
         addHeatSource(X / 4, Y - X / 4);
+    }
+
+    private void fiveBigSource(){
+        radius = X + 10;// / 4;
+        addHeatSource(X / 4, X / 4);
+        addHeatSource(X - X / 4, X / 4);
+        addHeatSource(X - X / 4, Y - X / 4);
+        addHeatSource(X / 4, Y - X / 4);
+        addHeatSource(X / 2, Y / 2);
     }
 
     private void oneSource(){
@@ -113,7 +123,9 @@ public class Heater implements FiniteDifference {
                 min = current;
             }
         }
-        return defaultHeat + (radius - min);
+        return defaultHeat
+                + (radius - min) //TODO rethink
+                ;
 //                1 + p0 * (1 - min/l);
     }
 
@@ -128,8 +140,8 @@ public class Heater implements FiniteDifference {
         double deltaY = 0.1; //dX
         double alpha = 0.1;  // \ / (c * r) - lambd / heat * density
         double delta = deltaTime * alpha / (deltaX * deltaX);
-        for (int i = 1; i < X - 2; i++) {
-            for (int j = 1; j < Y - 2; j++) {
+        for (int i = 1; i < X - 1; i++) {
+            for (int j = 1; j < Y - 1; j++) {
                 newHeat[i][j] =
                         heat[i][j]
                                 + delta *
