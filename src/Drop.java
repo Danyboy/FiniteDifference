@@ -197,12 +197,8 @@ public class Drop implements FiniteDifference {
         Y = checkBorder(previousY, (int) (currentDropSpeedY * coefficient));
 
         //cheat for drop reflection
-        if (X == 0){
-            currentDropSpeedX = - currentDropSpeedX;
-        }
-        if (Y == 0){
-            currentDropSpeedY = - currentDropSpeedY;
-        }
+//        if (X == 0){currentDropSpeedX = - currentDropSpeedX;}
+//        if (Y == 0){currentDropSpeedY = - currentDropSpeedY;}
 
         myX = X;
         myY = Y;
