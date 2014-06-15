@@ -11,7 +11,7 @@ public class Drop implements FiniteDifference {
     double vaporSpeedX;
     double vaporSpeedY;
 
-    int steps = 45;
+    int steps = 65;
     int currentStep = 0;
     public int[][] dropPath = new int[steps][2];
     private double[][] forceHistory = new double[steps][2];
@@ -150,8 +150,8 @@ public class Drop implements FiniteDifference {
     private void calculateDropForce() {
         calculateVaporSpeed();
 
-        // h * p * V ^ 2 * n * R
-        double forceCoefficient = 1; //TODO write annotation about formulas
+        // h * p * V ^ 2 * n * R //TODO write annotation about formulas
+        double forceCoefficient = 100000000000.0; //experimental coefficient or cacl by normalize
         dropForceX = - calculateHeightDrop() * forceCoefficient * vaporSpeedX * vaporSpeedX * directionSpeedX;
         dropForceY = - calculateHeightDrop() * forceCoefficient * vaporSpeedY * vaporSpeedY * directionSpeedY;
 //        System.out.println("ForceX " + dropForceX + " ForceY " + dropForceY + " Height " + calculateHeightDrop());
@@ -179,7 +179,7 @@ public class Drop implements FiniteDifference {
     private void calculateDropSpeed(){
         previousDropSpeedX = currentDropSpeedX;
         previousDropSpeedY = currentDropSpeedY;
-        double coefficient = 100000000000.0; // m * dt  //experimental coefficient
+        double coefficient = 0.3; // m * dt
         currentDropSpeedX = previousDropSpeedX + dropForceX * coefficient;
         currentDropSpeedY = previousDropSpeedY + dropForceY * coefficient;
     }
@@ -190,17 +190,29 @@ public class Drop implements FiniteDifference {
         previousX = X;
         previousY = Y;
         double coefficient = 1;
-        myX = previousX + (int) (currentDropSpeedX * coefficient);
-        myY = previousY + (int) (currentDropSpeedY * coefficient);
+//        myX = previousX + (int) (currentDropSpeedX * coefficient);
+//        myY = previousY + (int) (currentDropSpeedY * coefficient);
 
         X = checkBorder(previousX, (int) (currentDropSpeedX * coefficient));
         Y = checkBorder(previousY, (int) (currentDropSpeedY * coefficient));
 
-        System.out.println("Px " + sidePressureX + " Py " + sidePressureY
+        //cheat for drop reflection
+        if (X == 0){
+            currentDropSpeedX = - currentDropSpeedX;
+        }
+        if (Y == 0){
+            currentDropSpeedY = - currentDropSpeedY;
+        }
+
+        myX = X;
+        myY = Y;
+
+        System.out.println("S "  + currentStep
+                + " Px " + sidePressureX + " Py " + sidePressureY
                 + " Vpx " + vaporSpeedX + " Vpy " + vaporSpeedY
                 + " Fx " + dropForceX + " Fy " + dropForceY
                 + " h " + calculateHeightDrop()
-//                + " Vx " + previousDropSpeedX + " Vy " + previousDropSpeedY
+//                + " Vx " + currentDropSpeedX + " Vy " + previousDropSpeedY
         );
         System.out.println("NewX " + myX + " NewY " + myY
                 +" diffX " + (myX - previousX) + " diffY " + (myY - previousY)
@@ -258,7 +270,7 @@ public class Drop implements FiniteDifference {
     }
 
     private int checkBorder(int position, int path) {
-        int border = heat.length - dropSize - 1; //TODO check
+        int border = heat.length;// - dropSize - 1; //TODO check
         int currentPosition = position + path;
         boolean needCheck = true;
         if (needCheck) {

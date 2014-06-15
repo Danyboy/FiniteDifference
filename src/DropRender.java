@@ -48,7 +48,7 @@ public class DropRender extends JComponent {
             for (int i = 0; i < path.length; i++) {
                 int currentStepDropSize = resizedDrop * (steps - (int) (i / 1.5)) / steps;    // i / 2 is integer
                 int[] step = path[i];
-                g.setColor(new Color(0, 0, 250, 120 * i / steps));
+                g.setColor(new Color(0, 0, 250, 120 * (steps - (int) (i / 1.5)) / steps));
                 g.fillOval(step[0] * dropPosition, step[1] * dropPosition, currentStepDropSize, currentStepDropSize);
             }
         }
