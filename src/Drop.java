@@ -41,6 +41,7 @@ public class Drop implements FiniteDifference {
     @Override
     public void calculate() {
 
+        pressure = getInitialPressure();
         int pressureSteps = 10;
         for (int i = 0; i < pressureSteps; i++) {
             nextPressureIteration();
@@ -49,7 +50,6 @@ public class Drop implements FiniteDifference {
     }
 
     private double nextPressureIteration() {
-        pressure = getInitialPressure();
         double[][] newPressure = new double[pressure.length][pressure[1].length];
         double diff = 0;
         double deltaTime = 0.01; //dT
@@ -59,22 +59,50 @@ public class Drop implements FiniteDifference {
 
         double alpha = 0.1; // * Math.pow(height, 4)  // ( m * lambda ) / ( r * p * h^4 )
         // вязкость * тепл проводность / ( уд тепл парообраз * плотность пара * высота капли )
-        double delta = deltaTime / (deltaR * deltaR); // TODO check deltaR
+        double delta = deltaTime / (deltaR); // TODO check deltaR
         double t0 = 100;
 
         for (int i = 1; i < dropHeat.length - 1; i++) {
             for (int j = 1; j < dropHeat[1].length - 1; j++) {
                 newPressure[i][j] = pressure[i][j] + deltaTime * alpha * dropHeat[i][j] - delta * (
                         pressure[i + 1][j] + pressure[i - 1][j] +
-                                pressure[i][j + 1] + pressure[i][j - 1]
+                        pressure[i][j + 1] + pressure[i][j - 1]
                                 - 4 * pressure[i][j])
                 ; //dropHeat[i][j] - t0
                 diff += newPressure[i][j] - pressure[i][j];
             }
         }
 
+        copyBorder(pressure, newPressure);
+
         pressure = newPressure;
         return diff;
+    }
+
+    private void copyBorder(double[][] oldArray, double[][] newArray) {
+        int length = oldArray.length;
+        for (int i = 0; i < length; i++) {
+            newArray[i][0] = oldArray[i][1];
+            newArray[i][length - 1] = oldArray[i][length - 2];
+        }
+        for (int j = 0; j < length; j++) {
+            newArray[0][j] = oldArray[1][j];
+            newArray[length - 1][j] = oldArray[length - 2][j];
+        }
+    }
+
+    void setDropHeat(int x, int y) {
+        dropHeat = new double[dropSize][dropSize];
+        for (int i = 0; i < dropSize; i++) {
+            for (int j = 0; j < dropSize; j++) {
+                if (i + x > heat.length - 1 || j + x > heat[1].length - 1 || i + x < 0 || j + x < 0) {
+                    dropHeat[i][j] = 5000; //Double.MAX_VALUE; //TODO very hot border, maybe change
+                } else {
+                    dropHeat[i][j] =
+                            heat[x + i][y + j];
+                }
+            }
+        }
     }
 
     private double calculateHeightDrop() {
@@ -97,8 +125,6 @@ public class Drop implements FiniteDifference {
                 ;
     }
 
-    double allForceX = 0;
-    double allForceY = 0;
     double sidePressureX = 0;
     double sidePressureY = 0;
     double directionSpeedX;
@@ -112,12 +138,13 @@ public class Drop implements FiniteDifference {
         directionSpeedX = Math.signum(sidePressureX);
         directionSpeedY = Math.signum(sidePressureY);
 
-        double viscosity = 1;
-        double k = viscosity * Math.pow(calculateHeightDrop(), 2);
+        double viscosity = 1.0;
+        double k = viscosity * Math.pow(calculateHeightDrop(), 2.0);
         vaporSpeedX = - k * sidePressureX;
         vaporSpeedY = - k * sidePressureY;
 
-        System.out.println("VaporSpeedX " + vaporSpeedX + " VaporSpeedY " + vaporSpeedY + " Dir " + directionSpeedX + ";" + directionSpeedY);
+//        System.out.println("VaporSpeedX " + vaporSpeedX + " VaporSpeedY " + vaporSpeedY
+//                + " Dir " + directionSpeedX + ";" + directionSpeedY);
     }
 
     private void calculateDropForce() {
@@ -127,20 +154,17 @@ public class Drop implements FiniteDifference {
         double forceCoefficient = 1; //TODO write annotation about formulas
         dropForceX = - calculateHeightDrop() * forceCoefficient * vaporSpeedX * vaporSpeedX * directionSpeedX;
         dropForceY = - calculateHeightDrop() * forceCoefficient * vaporSpeedY * vaporSpeedY * directionSpeedY;
-        System.out.println("ForceX " + dropForceX + " ForceY " + dropForceY + " Height " + calculateHeightDrop());
+//        System.out.println("ForceX " + dropForceX + " ForceY " + dropForceY + " Height " + calculateHeightDrop());
 
-        dropForceX = normalise(dropForceX); //TODO remove this
-        dropForceY = normalise(dropForceY);
+//        dropForceX = normalise(dropForceX); //TODO remove this
+//        dropForceY = normalise(dropForceY);
 //        System.out.println("ForceX " + dropForceX + " ForceY " + dropForceY + " K " + coefficient);
-        System.out.println("Height " + calculateHeightDrop() + " Press " + sidePressureX + " MeanTemp " + getMeanTemperature());
+//        System.out.println("Height " + calculateHeightDrop() + " Press " + sidePressureX + " MeanTemp " + getMeanTemperature());
 
         calculateDropSpeed();
         calculateNewPosition();
 
         //remove
-//        allForceX =+ Math.abs(dropForceX);
-//        allForceY =+ Math.abs(dropForceY);
-//
 //        int stepLengthX = getStepLength(allForceX);
 //        int stepLengthY = getStepLength(allForceY);
 //
@@ -155,7 +179,7 @@ public class Drop implements FiniteDifference {
     private void calculateDropSpeed(){
         previousDropSpeedX = currentDropSpeedX;
         previousDropSpeedY = currentDropSpeedY;
-        double coefficient = 1; // m * dt
+        double coefficient = 100000000000.0; // m * dt  //experimental coefficient
         currentDropSpeedX = previousDropSpeedX + dropForceX * coefficient;
         currentDropSpeedY = previousDropSpeedY + dropForceY * coefficient;
     }
@@ -163,8 +187,8 @@ public class Drop implements FiniteDifference {
     int myX;
     int myY;
     private void calculateNewPosition(){
-        previousX = myX;
-        previousY = myY;
+        previousX = X;
+        previousY = Y;
         double coefficient = 1;
         myX = previousX + (int) (currentDropSpeedX * coefficient);
         myY = previousY + (int) (currentDropSpeedY * coefficient);
@@ -172,10 +196,15 @@ public class Drop implements FiniteDifference {
         X = checkBorder(previousX, (int) (currentDropSpeedX * coefficient));
         Y = checkBorder(previousY, (int) (currentDropSpeedY * coefficient));
 
-        System.out.println("NewX " + myX + " NewY " + myY +
-                " diffX " + (myX - previousX) + " diffY " + (myY - previousY) +
-                " CurSpeedX " + currentDropSpeedX + " CurSpeedY " + currentDropSpeedY +
-                " PrevSpeedX " + previousDropSpeedX + " PrevSpeedX " + previousDropSpeedX
+        System.out.println("Px " + sidePressureX + " Py " + sidePressureY
+                + " Vpx " + vaporSpeedX + " Vpy " + vaporSpeedY
+                + " Fx " + dropForceX + " Fy " + dropForceY
+                + " h " + calculateHeightDrop()
+//                + " Vx " + previousDropSpeedX + " Vy " + previousDropSpeedY
+        );
+        System.out.println("NewX " + myX + " NewY " + myY
+                +" diffX " + (myX - previousX) + " diffY " + (myY - previousY)
+                +" CurSpeedX " + currentDropSpeedX + " CurSpeedY " + currentDropSpeedY
         );
     }
 
@@ -262,7 +291,7 @@ public class Drop implements FiniteDifference {
 
         if (dropSize < 2 || array.length < 2 || X == 0 || Y == 0 ||
                 X == heat.length - 1 || Y == heat[1].length - 1) {
-            System.out.println("drop size must be > 2 and doesn't stay at border " + dropSize + " " + X);
+//            System.out.println("drop size must be > 2 and doesn't stay at border " + dropSize + " " + X);
         }
 
         int dropHeatXLength = array.length;
@@ -311,23 +340,9 @@ public class Drop implements FiniteDifference {
         return result;
     }
 
-    void setDropHeat(int x, int y) {
-        dropHeat = new double[dropSize][dropSize];
-        for (int i = 0; i < dropSize; i++) {
-            for (int j = 0; j < dropSize; j++) {
-                if (i + x > heat.length - 1 || j + x > heat[1].length - 1 || i + x < 0 || j + x < 0) {
-                    dropHeat[i][j] = 5000; //Double.MAX_VALUE; //TODO very hot border, maybe change
-                } else {
-                    dropHeat[i][j] =
-                            heat[x + i][y + j];
-                }
-            }
-        }
-    }
-
     private double[][] getInitialPressure() {
         pressure = new double[dropSize][dropSize];
-        double atmospherePressure = 600;
+        double atmospherePressure = 0; //600
 
         for (int i = 0; i < pressure.length; i++) {
             double[] doubles = pressure[i];
