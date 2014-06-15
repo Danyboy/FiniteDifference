@@ -7,9 +7,7 @@ class HeatSource {
     double energy;
 
     HeatSource(int x, int y) {
-        this.x = x;
-        this.y = y;
-//            this.energy = e;
+        this(x, y, 200);
     }
 
     HeatSource(int x, int y, double e) {
