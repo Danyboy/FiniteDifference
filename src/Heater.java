@@ -115,8 +115,7 @@ public class Heater implements FiniteDifference {
         if (heatSources.isEmpty()) {
             return defaultHeat; //default heat
         }
-        double minimalDistance = radius; //Energy quantity
-//        double min = 0;
+        double minimalDistance = radius; //Energy quantity = distance
         for (HeatSource heatSource : heatSources) {
             double currentDistance = distance(x, y, heatSource);
             if (currentDistance < minimalDistance) { //find nearest heat source
@@ -126,8 +125,7 @@ public class Heater implements FiniteDifference {
         }
         return defaultHeat
                 +
-                (
-                radius -
+                (radius -
                 minimalDistance) //TODO rethink
                 ;
 //                1 + p0 * (1 - min/l);

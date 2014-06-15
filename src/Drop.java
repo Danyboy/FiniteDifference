@@ -11,7 +11,7 @@ public class Drop implements FiniteDifference {
     double vaporSpeedX;
     double vaporSpeedY;
 
-    int steps = 25;
+    int steps = 45;
     int currentStep = 0;
     public int[][] dropPath = new int[steps][2];
     private double[][] forceHistory = new double[steps][2];
@@ -99,39 +99,47 @@ public class Drop implements FiniteDifference {
 
     double allForceX = 0;
     double allForceY = 0;
+    double sidePressureX = 0;
+    double sidePressureY = 0;
+    double directionSpeedX;
+    double directionSpeedY;
+    double[][] pressureAtBorder;
 
-    private double calculateVaporSpeed(double [] firstSide, double [] secondSide){
+    private void calculateVaporSpeed(){
+        pressureAtBorder = getBorder(pressure);
+        sidePressureX = getSummarize(pressureAtBorder[0]) - getSummarize(pressureAtBorder[1]);
+        sidePressureY = getSummarize(pressureAtBorder[2]) - getSummarize(pressureAtBorder[3]);
+        directionSpeedX = Math.signum(sidePressureX);
+        directionSpeedY = Math.signum(sidePressureY);
+
         double viscosity = 1;
-        return viscosity * Math.pow(calculateHeightDrop(), 2) * getSummarize(firstSide) - getSummarize(secondSide);
+        double k = viscosity * Math.pow(calculateHeightDrop(), 2);
+        vaporSpeedX = - k * sidePressureX;
+        vaporSpeedY = - k * sidePressureY;
 
+        System.out.println("VaporSpeedX " + vaporSpeedX + " VaporSpeedY " + vaporSpeedY + " Dir " + directionSpeedX + ";" + directionSpeedY);
     }
 
     private void calculateDropForce() {
-        double[][] pressureAtBorder = getBorder(pressure);
-
-        vaporSpeedX = - calculateVaporSpeed(pressureAtBorder[0], pressureAtBorder[1]);
-        vaporSpeedY = - calculateVaporSpeed(pressureAtBorder[2], pressureAtBorder[3]);
-
-        double coefficient = vaporSpeedX / vaporSpeedY;
-        System.out.println("VaporSpeedX " + vaporSpeedX + " VaporSpeedY " + vaporSpeedY + " K " + coefficient);
+        calculateVaporSpeed();
 
         // h * p * V ^ 2 * n * R
-        double forceCoefficient = 0.1; //TODO write annotation about formulas
-        dropForceX = calculateHeightDrop() * forceCoefficient * vaporSpeedX * vaporSpeedX;
-        dropForceY = calculateHeightDrop() * forceCoefficient * vaporSpeedY * vaporSpeedY;
-        System.out.println("ForceX " + dropForceX + " ForceY " + dropForceY + " K " + coefficient);
+        double forceCoefficient = 1; //TODO write annotation about formulas
+        dropForceX = - calculateHeightDrop() * forceCoefficient * vaporSpeedX * vaporSpeedX * directionSpeedX;
+        dropForceY = - calculateHeightDrop() * forceCoefficient * vaporSpeedY * vaporSpeedY * directionSpeedY;
+        System.out.println("ForceX " + dropForceX + " ForceY " + dropForceY + " Height " + calculateHeightDrop());
 
-//        dropForceX = normalise(dropForceX); //TODO remove this
-//        dropForceY = normalise(dropForceY);
-        System.out.println("ForceX " + dropForceX + " ForceY " + dropForceY + " K " + coefficient);
-        System.out.println("Force " + forceCoefficient + " MeanTemp " + getMeanTemperature() + " h " + calculateHeightDrop());
+        dropForceX = normalise(dropForceX); //TODO remove this
+        dropForceY = normalise(dropForceY);
+//        System.out.println("ForceX " + dropForceX + " ForceY " + dropForceY + " K " + coefficient);
+        System.out.println("Height " + calculateHeightDrop() + " Press " + sidePressureX + " MeanTemp " + getMeanTemperature());
 
         calculateDropSpeed();
         calculateNewPosition();
 
         //remove
-        allForceX = +Math.abs(dropForceX);
-        allForceY = +Math.abs(dropForceY);
+        allForceX =+ Math.abs(dropForceX);
+        allForceY =+ Math.abs(dropForceY);
 
         int stepLengthX = getStepLength(allForceX);
         int stepLengthY = getStepLength(allForceY);
@@ -160,26 +168,43 @@ public class Drop implements FiniteDifference {
         double coefficient = 1;
         myX = previousX + (int) (currentDropSpeedX * coefficient);
         myY = previousY + (int) (currentDropSpeedY * coefficient);
-        System.out.println("NewX " + myX + " NewY " + myY + " diff " + (myX - previousX));
+
+//        X = checkBorder(previousX, (int) (currentDropSpeedX * coefficient));
+//        Y = checkBorder(previousY, (int) (currentDropSpeedY * coefficient));
+
+        System.out.println("NewX " + myX + " NewY " + myY +
+                " diffX " + (myX - previousX) + " diffY " + (myY - previousY) +
+                " CurSpeedX " + currentDropSpeedX + " CurSpeedY " + currentDropSpeedY +
+                " PrevSpeedX " + previousDropSpeedX + " PrevSpeedX " + previousDropSpeedX
+        );
     }
 
+    double forceNormaliseCoefficient = 10000;   //10 ^
     private double normalise(double force) {
+        double k = 0;
+        double sign = 1;
+        if (force < 0){
+            sign = -1;
+            force = Math.abs(force);
+        }
         if (force == 0) {
             return 0;
         }
         if (force < 1) {
-            while (force < 1)
+            while (force < 1){
                 force *= 10;
+                k++;
+            }
         } else if (force > 10) {
-            while (force > 10)
+            while (force > 10){
                 force /= 10;
+                k--;
+            }
         }
-        if (1 < force && force < 10) {
-            return force;
-        } else {
-            normalise(force);
+        if (k < forceNormaliseCoefficient){
+        forceNormaliseCoefficient = k;
         }
-        return force;
+        return force * sign;
     }
 
     private int getStepLength(double allForce) {
