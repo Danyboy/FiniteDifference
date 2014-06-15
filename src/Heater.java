@@ -37,7 +37,7 @@ public class Heater implements FiniteDifference {
         calculateHeatCofficient();
         setInitialHeat();
 
-        for (int i = 0; i < 10000; i++) { //TODO change to diff calc
+        for (int i = 0; i < 100; i++) { //TODO change to diff calc
 //            System.out.println();
 //            System.out.println("New iteration " + i);
             nextThermalIteration();
@@ -115,20 +115,20 @@ public class Heater implements FiniteDifference {
         if (heatSources.isEmpty()) {
             return defaultHeat; //default heat
         }
-        double minimalDistance = 1;// radius; //Energy quantity
+        double minimalDistance = radius; //Energy quantity
 //        double min = 0;
         for (HeatSource heatSource : heatSources) {
             double currentDistance = distance(x, y, heatSource);
             if (currentDistance < minimalDistance) { //find nearest heat source
                 minimalDistance = currentDistance;
-                defaultHeat = heatSource.energy;
+//                defaultHeat = heatSource.energy;
             }
         }
         return defaultHeat
-//                +
-//                (
-//                radius -
-//                minimalDistance) //TODO rethink
+                +
+                (
+                radius -
+                minimalDistance) //TODO rethink
                 ;
 //                1 + p0 * (1 - min/l);
     }
