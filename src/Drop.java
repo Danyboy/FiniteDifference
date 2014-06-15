@@ -138,18 +138,18 @@ public class Drop implements FiniteDifference {
         calculateNewPosition();
 
         //remove
-        allForceX =+ Math.abs(dropForceX);
-        allForceY =+ Math.abs(dropForceY);
-
-        int stepLengthX = getStepLength(allForceX);
-        int stepLengthY = getStepLength(allForceY);
-
-        allForceX -= stepLengthX;
-        allForceY -= stepLengthY;
-        System.out.println("StepX " + stepLengthX + " StepY " + stepLengthY);
-
-        X = checkBorder(X, getDir(pressureAtBorder[0], pressureAtBorder[1]) * stepLengthX);
-        Y = checkBorder(Y, getDir(pressureAtBorder[2], pressureAtBorder[3]) * stepLengthY);
+//        allForceX =+ Math.abs(dropForceX);
+//        allForceY =+ Math.abs(dropForceY);
+//
+//        int stepLengthX = getStepLength(allForceX);
+//        int stepLengthY = getStepLength(allForceY);
+//
+//        allForceX -= stepLengthX;
+//        allForceY -= stepLengthY;
+//        System.out.println("StepX " + stepLengthX + " StepY " + stepLengthY);
+//
+//        X = checkBorder(X, getDir(pressureAtBorder[0], pressureAtBorder[1]) * stepLengthX);
+//        Y = checkBorder(Y, getDir(pressureAtBorder[2], pressureAtBorder[3]) * stepLengthY);
     }
 
     private void calculateDropSpeed(){
@@ -169,8 +169,8 @@ public class Drop implements FiniteDifference {
         myX = previousX + (int) (currentDropSpeedX * coefficient);
         myY = previousY + (int) (currentDropSpeedY * coefficient);
 
-//        X = checkBorder(previousX, (int) (currentDropSpeedX * coefficient));
-//        Y = checkBorder(previousY, (int) (currentDropSpeedY * coefficient));
+        X = checkBorder(previousX, (int) (currentDropSpeedX * coefficient));
+        Y = checkBorder(previousY, (int) (currentDropSpeedY * coefficient));
 
         System.out.println("NewX " + myX + " NewY " + myY +
                 " diffX " + (myX - previousX) + " diffY " + (myY - previousY) +
